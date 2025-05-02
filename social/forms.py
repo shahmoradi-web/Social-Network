@@ -44,3 +44,13 @@ class UserEditForm(forms.ModelForm):
         if User.objects.exclude(id=self.instance.id).filter(username=username).exists():
             raise forms.ValidationError('username already exists')
         return username
+
+
+class TicketForm(forms.Form):
+    SUBJECT_CHOICES = (
+        ('پیشنهاد','پیشنهاد'),
+        ('انتقاد','انتقاد'),
+        ('گزارش','گزارش')
+    )
+    message = forms.CharField(required=True)
+    subject = forms.ChoiceField(choices=SUBJECT_CHOICES, required=True)

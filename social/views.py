@@ -1,9 +1,11 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth import logout
 
-from social.forms import UserRegisterForm, UserEditForm
+from social.forms import UserRegisterForm, UserEditForm, TicketForm
 
 
 # Create your views here.
@@ -42,3 +44,16 @@ def edit_user(request):
         'user_form': user_form,
     }
     return render(request, 'registration/edit_user.html', context)
+
+def ticket(request):
+    if request.method == 'POST':
+        form = TicketForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            message = f'{cd["name"]}\n{cd["email"]}\n{cd["phone"]}\n\n{cd["message"]}'
+            send_mail(cd["subject"], message, 'shahmoradinrges@gmail.com',
+                      ['venusshahmoradi3@gmail.com'])
+            messages.success(request, 'Your ticket has been sent.')
+    else:
+        form = TicketForm()
+    return render(request, 'forms/ticket.html', {'form': form})

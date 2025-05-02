@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.contrib.auth import logout
 
 from social.forms import UserRegisterForm, UserEditForm, TicketForm
+from social.models import Post
 
 
 # Create your views here.
@@ -57,3 +58,8 @@ def ticket(request):
     else:
         form = TicketForm()
     return render(request, 'forms/ticket.html', {'form': form})
+
+
+def post_list(request, tag_slug=None):
+    posts = Post.objects.all()
+    return render(request, 'social/list.html', {'posts': posts})

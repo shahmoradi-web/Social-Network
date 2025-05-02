@@ -1,0 +1,9 @@
+{% for post in posts %}
+        <img src="{{ post.images.first.imag_file.url }}" alt="{{ post.images.first.title }}">
+
+        <a href = "{{ post.get_absolute_url }}">{{ post.description | truncatewords:20| linebreaks }}
+        </a>
+
+        Published at {{ post.created|date:'Y-m-d'}} by {{ post.author }}
+
+{% endfor %}

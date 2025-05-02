@@ -54,3 +54,9 @@ class TicketForm(forms.Form):
     )
     message = forms.CharField(required=True)
     subject = forms.ChoiceField(choices=SUBJECT_CHOICES, required=True)
+
+class CreatePostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ('description','tags')
+

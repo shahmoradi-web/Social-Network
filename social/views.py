@@ -2,11 +2,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import logout
 from taggit.models import Tag
 
-from social.forms import UserRegisterForm, UserEditForm, TicketForm
+from social.forms import UserRegisterForm, UserEditForm, TicketForm, CreatePostForm
 from social.models import Post
 
 
@@ -68,3 +68,36 @@ def post_list(request, tag_slug=None):
         tag = get_object_or_404(Tag, slug=tag_slug)
         posts = posts.filter(tags__in=[tag])
     return render(request, 'social/list.html', {'posts': posts, 'tag':tag})
+
+
+@login_required
+def create_post(request):
+    if request.method == 'POST':
+        form = CreatePostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            form.save_m2m()
+            return redirect('social:profile')
+    else:
+        form = CreatePostForm()
+    return render(request, 'forms/create_post.html', {'form': form})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

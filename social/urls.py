@@ -25,5 +25,6 @@ urlpatterns=[
          auth_views.PasswordResetConfirmView.as_view(success_url='/password_reset/complete'),
          name='password_reset_confirm'),
     path('password_reset/complete/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('like_post/', views.like_post, name='like_post'),
 
 ]

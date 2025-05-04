@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Count
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -69,7 +70,24 @@ def post_list(request, tag_slug=None):
     if tag_slug:
         tag = get_object_or_404(Tag, slug=tag_slug)
         posts = posts.filter(tags__in=[tag])
-    return render(request, 'social/list.html', {'posts': posts, 'tag':tag})
+
+    page = request.GET.get('page')
+    paginator = Paginator(posts, 1)
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = []
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'social/list_ajax.html', {'posts': posts})
+
+    context = {
+        'posts': posts,
+        'tag': tag
+    }
+    return render(request, 'social/list.html', context)
 
 
 @login_required

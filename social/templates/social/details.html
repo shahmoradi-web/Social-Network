@@ -16,7 +16,17 @@
     </button>
     <span class="likes-count">{{ post.likes.count }}</span> likes
 </div>
+
+<button class="save-button">
+        {% if request.user in post.saved_by.all%}
+            Unsaved
+        {% else %}
+            saved
+        {% endif %}
+</button>
+<br>
 {% for tag in post.tags.all %}
+    tags:
     <a href="{% url 'social:post_list_by_tag' tag.slug %}">{{ tag.name }}</a>
     {% if not forloop.last %},{% endif %}
 {% endfor %}
@@ -57,4 +67,25 @@
         });
 
     });
+    $('.save-button').click(function (){
+            var button = $(this);
+
+            $.ajax({
+                type:'POST',
+                url:'{% url 'social:save_post' %}',
+                data:{'post_id':{{ post.id }}, 'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                success: function (data){
+                    if (data.saved){
+                        button.text('Unsaved');
+                    } else{
+                        button.text('saved');
+                    }
+
+                },
+                error: function (error){
+                    console.log("خطا در ارسال درخواستAJAX" + error);
+                }
+            });
+
+        });
 </script>

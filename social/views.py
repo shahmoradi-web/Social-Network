@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import logout
@@ -86,7 +87,17 @@ def create_post(request):
 
 
 
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post_tag_ids = post.tags.values_list('id', flat=True)
+    similar_post = Post.objects.filter(tags__in=post_tag_ids).exclude(id=post.id)
+    similar_post = similar_post.annotate(same_tags =Count('tags')).order_by('-same_tags', '-created')[:2]
+    context = {
+        'post': post,
+        'similar_post':similar_post,
+    }
 
+    return render(request, 'social/details.html', context)
 
 
 

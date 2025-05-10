@@ -15,6 +15,9 @@ class User(AbstractUser):
                               verbose_name='تصویر', default='download.jpg')
     job = models.CharField(max_length=250, blank=True, null=True)
     phone = models.CharField(max_length=11, blank=True, null=True)
+    following = models.ManyToManyField('self', related_name='followers', symmetrical=False,through='Cancat')
+
+
 
 
 class Post(models.Model):
@@ -63,4 +66,19 @@ class Image(models.Model):
 
     def __str__(self):
         return self.title if self.title else os.path.basename(self.imag_file.url)
+
+
+class Cancat(models.Model):
+    user_from = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rel_from_set')
+    user_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rel_to_set')
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created']
+        indexes = [
+            models.Index(fields=['-created'])
+        ]
+    def __str__(self):
+            return f'{self.user_from} -> {self.user_to}'
+
 

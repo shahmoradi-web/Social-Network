@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social.apps.SocialConfig',
-    'taggit'
+    'taggit',
+    'easy_thumbnails',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +146,4 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_PASSWORD = 'lindjcuqblnltobq'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+THUMBNAIL_DEBUG = True

@@ -1,0 +1,32 @@
+{% load thumbnail %}
+{% load static %}
+
+<p>{{user.get_full_name }}</p>
+
+{% if request.user in user.followers.all%}
+    <button class="follow-button" > Unfollow </button>
+{% else %}
+    <button class="follow-button" > Follow </button>
+{% endif %}
+
+
+{% if user.photo%}
+    <a href={{ user.get_absolute_url }}>
+        <img src="{% thumbnail user.photo 200x0 quality=80 %}">
+    </a>
+{% else %}
+    <a href={{ user.get_absolute_url }}>
+        <img src="{% static 'images/download (1).png'%}" style="width: 200px;">
+    </a>
+{% endif %}
+
+<p>Bio: {{ user.bio|default:'___' }}</p>
+<p>Job: {{ user.job|default:'___' }}</p>
+<p>Data of brith: {{ user.data_of_brith|default:'___' }}</p>
+
+{% with total_followers=user.followers.count total_following=user.following.count%}
+
+    <a href="{% url "social:follow" user.id 'followers'%}"><span class="followers-count">{{ total_followers }} Follower{{ total_followers|pluralize }}</span></a>
+    <a href="{% url "social:follow" user.id 'following'%}"><span class="following-count">{{ total_following }} Following</span></a>
+
+{% endwith %}

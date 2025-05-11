@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 from taggit.models import Tag
 
 from social.forms import UserRegisterForm, UserEditForm, TicketForm, CreatePostForm
-from social.models import Post
+from social.models import Post, User
 
 
 # Create your views here.
@@ -167,7 +167,15 @@ def save_post(request):
     return JsonResponse({'error': 'invalid post_id'})
 
 
+@login_required
+def user_list(request):
+    users=User.objects.filter(is_active=True)
+    return render(request, 'user/user_list.html', {'users': users})
 
+@login_required
+def user_detail(request, username):
+    user = User.objects.get(username=username)
+    return render(request, 'user/user_detail.html', {'user': user})
 
 
 

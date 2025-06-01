@@ -3,10 +3,14 @@
 
 <p>{{user.get_full_name }}</p>
 
-{% if request.user in user.followers.all%}
-    <button class="follow-button" > Unfollow </button>
+{% if request.user == user %}
+
 {% else %}
-    <button class="follow-button" > Follow </button>
+    {% if request.user in user.followers.all%}
+        <button class="follow-button" > Unfollow </button>
+    {% else %}
+        <button class="follow-button" > Follow </button>
+    {% endif %}
 {% endif %}
 
 
@@ -30,3 +34,35 @@
     <a href="{% url "social:follow" user.id 'following'%}"><span class="following-count">{{ total_following }} Following</span></a>
 
 {% endwith %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    function pruralize(data){
+        if (data > 1 || data === 0) {
+            return "s"
+        } else {
+            return ''
+        }
+    }
+    $(document).ready(function() {
+        $('.follow-button').click(function() {
+            var button = $(this);
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'social:user_follow' %}',
+                data: {'id': '{{user.id}}', 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                success: function(data) {
+                    if (data.follow){
+                        button.text('Unfollow');
+                    } else {
+                        button.text('Follow');
+                    }
+                    $('.followers-count').text(data.followers_count + 'Follower'+ pruralize(data.followers_count));
+                    $('.following-count').text(data.following_count +'Following');
+                },
+            });
+        });
+    });
+
+</script>

@@ -1,3 +1,5 @@
+import json
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.postgres.search import TrigramSimilarity
@@ -11,7 +13,7 @@ from django.views.decorators.http import require_POST
 from taggit.models import Tag
 
 from social.forms import UserRegisterForm, UserEditForm, TicketForm, CreatePostForm, SearchForm, CommentForm
-from social.models import Post, User, Cancat, Image
+from social.models import Post, User, Cancat, Image, Comment
 
 
 # Create your views here.
@@ -225,21 +227,22 @@ def post_search(request):
 
 
 @require_POST
-def post_comment(request, post_id):
-    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
-    comment = None
-    form = CommentForm(request.POST)
-    if form.is_valid():
-        comment = form.save(commit=False)
-        comment.post = post
-        comment.save()
-    context = {
-        'post': post,
-        'form': form,
-        'comment': comment
-    }
-    return render(request, 'forms/comment.html', context)
+def post_comment(request):
+    data = json.loads(request.body)
+    post_id = data['post_id']
+    comment_body = data['body']
 
+    post = get_object_or_404(Post, id=post_id)
+    comment = Comment.objects.create(
+        user=request.user,
+        body=comment_body,
+        post=post
+    )
+    return JsonResponse({
+        'user': comment.user.username,
+        'body': comment.body,
+        'created': comment.created
+    })
 
 @login_required
 def create_post(request):
@@ -283,3 +286,13 @@ def delete_img(request, img_id):
     image = get_object_or_404(Image, id=img_id)
     image.delete()
     return redirect('social:profile')
+
+@login_required
+def follow(request, user_id, rel):
+    users = None
+    user = get_object_or_404(User, id=user_id)
+    if rel == 'followers':
+        users = user.followers.all()
+    elif rel == 'following':
+        users = user.following.all()
+    return render(request,'user/user_list.html', {'users':users})

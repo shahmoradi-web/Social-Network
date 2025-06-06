@@ -40,6 +40,27 @@
     there are no similar post
 {% endfor %}
 
+<div id="comment-list">
+    <h2> Comments </h2>
+    {% if post.comments.all %}
+        {% for comment in post.comments.all %}
+            <p>At {{ comment.created }} {{comment.user}} commented:</p>
+            <p>{{comment.body}}</p>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div id="comment-div">
+    <form action="{% url 'social:post_comment' %}" id="comment-form">
+        <input type="hidden" id="post-id" value="{{post.id}}">
+        <textarea id="comment-body" maxlength="255" rows="4" cols="50"></textarea>
+        <br>
+        <button type="submit" id="submit-comment">Comment</button>
+    </form>
+    <hr>
+</div>
+
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
@@ -88,6 +109,46 @@
             });
 
         });
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    $('#submit-comment').click( function (e) {
+        e.preventDefault();
+        var url = $('#comment-form').attr("action");
+        var post_id = $('#post-id').attr("value");
+        var body = $('#comment-body').val();
+        const csrftoken = getCookie('csrftoken');
+
+        $.ajax({
+            method: "POST",
+            url: url,
+            headers: {'X-CsrfToken': csrftoken},
+            data: JSON.stringify({ post_id: post_id, body: body }),
+            success: function(comment) {
+                $('#comment-div').prop("hidden", true);
+                $('#comment-body').val('');
+                $('#comment-list').append(
+                    `<p>At ${comment.created} ${comment.user} commented:</p>
+                    <p>${comment.body}</p>`
+                );
+            }
+        });
+    });
+
+
 </script>
 
 <div>

@@ -17,9 +17,7 @@ def user_delete_post(sender, instance, **kwargs):
     send_mail(subject, message, 'shahmoradinrges@gmail.com',
               [author.email], fail_silently=False)
 
-# @receiver(post_save, sender=Post)
-# def activity_post(sender, instance, **kwargs):
-#     ActivityPost.objects.create(user=instance.author, post=instance)
+
 
 @receiver(post_save, sender=User)
 def default_value(sender, instance, **kwargs):
@@ -33,5 +31,7 @@ def default_value(sender, instance, **kwargs):
         instance.save()
 
     if not instance.photo:
-        instance.photo = 'download.jpg'
+        instance.photo = 'images/download (1).png'
         instance.save()
+
+

@@ -6,6 +6,16 @@ from social.models import *
 
 # Register your models here.
 
+def make_deactivate(modeladmin, request, queryset):
+    results = queryset.update(active=False)
+    modeladmin.message_user(request, f'{results} accounts has been deactivated.')
+
+
+def make_activate(modeladmin, request, queryset):
+    results = queryset.update(active=True)
+    modeladmin.message_user(request, f'{results} accounts has been activated.')
+
+
 class ImagInline(admin.TabularInline):
     model = Image
     extra = 0
@@ -23,3 +33,4 @@ class PostAdmin(admin.ModelAdmin):
     ordering = ['created']
     list_filter = ['created']
     inlines = [ImagInline]
+    actions = [make_deactivate, make_activate]

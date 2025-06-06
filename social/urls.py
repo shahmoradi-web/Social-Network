@@ -31,5 +31,11 @@ urlpatterns=[
     path('users/<username>/', views.user_detail, name='user_detail'),
     path('user_follow/', views.user_follow, name='user_follow'),
     # path('follow/<int:user_id>/<str:rel>', views.follow, name='follow'),
+    path('search/', views.post_search, name='post_search'),
+    path('posts/<int:post_id>/comment', views.post_comment, name='post_comment'),
+    path('profile/create-post', views.create_post, name='create_post'),
+    path('profile/create-post/<int:post_id>', views.edit_post, name='edit_post'),
+    path('profile/delete-post/<int:post_id>', views.delete_post, name='delete_post'),
+    path('profile/delete-img/<int:img_id>', views.delete_img, name='delete_img'),
 
 ]

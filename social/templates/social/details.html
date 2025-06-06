@@ -89,3 +89,25 @@
 
         });
 </script>
+
+<div>
+    {% with comments.count as cm_count %}
+        {{ cm_count }} comment{{ cm_count | pluralize }}
+    {% endwith %}
+</div>
+<div>
+    {% for cm in comments %}
+
+        {{ cm.body }}
+        {{ cm.name }}
+        <hr>
+    {% empty %}
+            کامنتی وجود ندار
+    {% endfor %}
+</div>
+
+<form method="post" action="{% url 'social:post_comment' post.id%}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="افزودن کامنت">
+</form>

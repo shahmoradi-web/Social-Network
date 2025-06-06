@@ -1,16 +1,17 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.postgres.search import TrigramSimilarity
 from django.core.mail import send_mail
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import logout
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 
-from social.forms import UserRegisterForm, UserEditForm, TicketForm, CreatePostForm
-from social.models import Post, User, Cancat
+from social.forms import UserRegisterForm, UserEditForm, TicketForm, CreatePostForm, SearchForm, CommentForm
+from social.models import Post, User, Cancat, Image
 
 
 # Create your views here.
@@ -112,12 +113,16 @@ def create_post(request):
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)
+    form = CommentForm()
+    comments = post.comments.filter(active=True)
     post_tag_ids = post.tags.values_list('id', flat=True)
     similar_post = Post.objects.filter(tags__in=post_tag_ids).exclude(id=post.id)
     similar_post = similar_post.annotate(same_tags =Count('tags')).order_by('-same_tags', '-created')[:2]
     context = {
         'post': post,
         'similar_post':similar_post,
+        'form':form,
+        'comments':comments
     }
 
     return render(request, 'social/details.html', context)
@@ -203,7 +208,78 @@ def user_follow(request):
 
 
 
+def post_search(request):
+    query = None
+    results = []
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results = Post.objects.filter(Q(description__icontains=query))
+    context = {
+        'results': results,
+        'query': query,
+        'len_results' : len(results)
+    }
+    return render(request, 'social/search.html', context)
 
 
+@require_POST
+def post_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id, status=Post.Status.PUBLISHED)
+    comment = None
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.save()
+    context = {
+        'post': post,
+        'form': form,
+        'comment': comment
+    }
+    return render(request, 'forms/comment.html', context)
 
 
+@login_required
+def create_post(request):
+    if request.method == 'POST':
+        form = CreatePostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            Image.objects.create(imag_file=form.cleaned_data['image'], post = post)
+            return redirect('social:profile')
+    else:
+        form = CreatePostForm()
+    return render(request, 'forms/create_post.html', {'form': form})
+
+@login_required
+def edit_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        form = CreatePostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            Image.objects.create(imag_file=form.cleaned_data['image'], post = post)
+            return redirect('social:profile')
+    else:
+        form = CreatePostForm(instance=post)
+    return render(request, 'forms/create_post.html', {'form': form, 'post': post})
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        post.delete()
+        return redirect('social:profile')
+    return render(request, 'forms/delete_post.html', {'post': post})
+
+@login_required
+def delete_img(request, img_id):
+    image = get_object_or_404(Image, id=img_id)
+    image.delete()
+    return redirect('social:profile')

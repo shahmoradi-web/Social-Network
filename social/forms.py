@@ -60,3 +60,11 @@ class CreatePostForm(forms.ModelForm):
         model = Post
         fields = ('description','tags')
 
+
+class SearchForm(forms.Form):
+    query = forms.CharField()
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('name', 'body')

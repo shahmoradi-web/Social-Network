@@ -1,0 +1,13 @@
+
+{% if query %}
+    <p style="color: black">{{ len_results }} amount of search for query {{ query }}</p>
+{% endif %}
+<br>
+{% for post in results %}
+    <a style="color: blueviolet" href="{{ post.get_absolute_url }}">{{ post.author }}</a>
+    <p style="color: black">{{ post.description| truncatewords:20 }}</p>
+    <br>
+    <hr>
+{% empty %}
+    No result!
+{% endfor %}

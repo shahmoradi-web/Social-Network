@@ -1,0 +1,10 @@
+{% block title %}delete post{% endblock %}
+{% block content %}
+   <h2>مطمعن هستید؟{{ post.title }}ایا از حذف پست</h2>
+    <a href="{% url 'social:profile' %}">بازگشت به صفحه پروفایل</a>
+    <br>
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" value="حذف">
+    </form>
+{% endblock %}

@@ -1,174 +1,246 @@
-<div class="post" data-post-id="{{ post.id }}">
-    <div>
-        {% for img in post.images.all %}
-            <img src="{{ img.imag_file.url }}" alt="{{ img.title }}">
-        {% endfor %}
-    </div>
-    {{ post.description| linebreaks }}
-    Published at {{ post.created|date:'Y-m-d'}} by {{ post.author }}
+{% extends 'parent/base.html' %}
+{% load thumbnail %}
+{% load static %}
+{% block title %} post detail {% endblock %}
+
+{% block content %}
+
+	<section class="single-post">
+		<div class="container">
+			<div class="row">
+
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-body">
+
+							<div class="row">
+								<div class="col-md-8 modal-image">
+									<img class="img-responsive" src="{{post.images.first.image_file.url}}" alt="Image" />
+                                <br>
+                                <div class="text-center">
+                                           <p class="text-dark">
+                                               {{ post.description }}
+                                           </p>
+                                        </div>
+                                <br>
+                                    <div class="text-center">
+                                        {% for tag in post.tags.all %}
+                                           <a class="text-dark" href="{% url 'social:post_list_by_tag' tag.slug %}">
+                                               <button> {{ tag.name }}</button>
+                                           </a>
+                                            {% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                        </div>
+
+								</div>
+
+								<!--/ col-md-8 -->
+								<div class="col-md-4 modal-meta">
+									<div class="modal-meta-top">
+{#										<button type="button" class="close" data-dismiss="modal" aria-hidden="true">#}
+{#											<span aria-hidden="true">×</span><span class="sr-only">بستن</span>#}
+{#										</button>#}
+										<!--/ button -->
+										<div class="img-poster clearfix">
+											<a href="#"><img class="img-responsive img-circle"
+													src="{{ post.author.photo.url}}" alt="Image" /></a>
+                                            <span>{{ post.created|date:"Y/m/d-H:i"}}</span><br />
+											<strong><a href="#">{{ post.author.get_full_name }}</a></strong>
+											<button id="save-post" class="kafe-btn kafe-btn-danger-small">
+                                                 {% if user in post.saved_by.all %}
+                                                    حذف از ذخیره
+                                                {% else %}
+                                                    ذخیره پست
+                                                {% endif %}
+                                            </button>
+										</div>
+										<!--/ img-poster -->
+
+										<ul class="img-comment-list">
+                                            {% for comment in post.comments.all %}
+                                            <!--/ li -->
+                                            <li>
+                                                <div class="comment-img">
+                                                    <img src="{% static 'images/profile/avatar2.png' %}" class="img-responsive img-circle"
+                                                        alt="Image" />
+                                                </div>
+                                                <div class="comment-text">
+                                                    <strong><a href="#">{{ comment.name }}</a></strong>
+                                                    <p class="">{{ comment.body }}</p> <span class="date sub-text"> در {{ comment.created }} </span>
+                                                </div>
+                                            </li>
+                                            <!--/ li -->
+                                            {% endfor %}
+										</ul>
+										<!--/ comment-list -->
+
+										<div class="modal-meta-bottom">
+									<ul>
+
+										<li>
+                                            <a class="modal-like" href="#">
+                                                {% if request.user in post.likes.all%}
+                                                <i class="fa fa-heart" id="like-button"> UnLike </i>
+                                                {% else %}
+                                                <i class="fa fa-heartbeat" id="like-button"> like </i>
+                                                {% endif %}
+                                            </a>
+                                            <span class="modal-one" id="likes-count"> {{ post.total_likes }}</span> |
+											<a class="modal-comment" href="#"><i class="fa fa-comments"></i></a><span>
+												{{ post.comments.count}}</span>
+										</li>
+										<li>
+											<span class="thumb-xs">
+												<img class="img-responsive img-circle" src="{% static 'images/profile/avatar2.webp' %}"
+													alt="Image">
+											</span>
+											<div class="comment-body">
+                                                <form method="post" action="{% url 'social:post_comment' post.id %}" >
+                                                    {% csrf_token %}
+                                                    {{ form.as_div }}
+                                                  <div class="col-12">
+                                                    <button type="submit" class="btn btn-dark">ثبت</button>
+                                                  </div>
+                                                </form>
+											</div>
+											<!--/ comment-body -->
+										</li>
+									</ul>
+								</div>
+										<!--/ modal-meta-bottom -->
+
+									</div>
+
+									<!--/ modal-meta-top -->
+								</div>
+								<!--/ col-md-4 -->
+
+							</div>
+							<!--/ row -->
+						</div>
+						<!--/ modal-body -->
+
+					</div>
+					<!--/ modal-content -->
+				</div>
+				<!--/ modal-dialog -->
+
+			</div>
+			<!--/ modal-dialog -->
+		</div>
+		<!--/ modal-dialog -->
+
+	</section>
+	<!--/ modal -->
+
+
+    <div class="row top-row">
+
+
+            <div class="text-center">
+                <h3 class="text-dark">پست های مشابه</h3>
+            </div>
     <br>
-    <button class="like-button">
-        {% if request.user in post.likes.all%}
-            Unlike
-        {% else %}
-            Like
-        {% endif %}
-    </button>
-    <span class="likes-count">{{ post.likes.count }}</span> likes
-</div>
+				{% for s_post in similar_post %}
+				<div class="col-lg-3">
+					<div class="tr-section">
+						<div class="tr-post">
+							<div class="entry-header">
+								<div class="entry-thumbnail">
+                                <a href="{% url 'social:post_detail' s_post.id %}">
+									<img class="img-fluid" src="{{ s_post.images.first.image_file.url}}" alt="Image">
+                                </a>
+								</div><!-- /entry-thumbnail -->
+							</div><!-- /entry-header -->
+							<div class="post-content">
+								<div class="author-post text-center">
+										<a href="{% url 'social:user_detail' s_post.author.username %}">
+                                            {% if user.photo %}
+                                        		<img class="img-fluid rounded-circle" src="{{ s_post.author.photo.url}}" alt="Image"></a>
+                                             {% else %}
+                                                <img class="img-fluid rounded-circle" src="{% static 'images/profile/Avatar.png' %}" alt="Image"></a>
+                                            {% endif %}
 
-<button class="save-button">
-        {% if request.user in post.saved_by.all%}
-            Unsaved
-        {% else %}
-            saved
-        {% endif %}
-</button>
-<br>
-{% for tag in post.tags.all %}
-    tags:
-    <a href="{% url 'social:post_list_by_tag' tag.slug %}">{{ tag.name }}</a>
-    {% if not forloop.last %},{% endif %}
-{% endfor %}
+								</div><!-- /author -->
+								<div class="card-content">
+									<h4>{{ s_post.author.get_full_name}}</h4>
+									<span>{{s_post.author.username}}</span>
+								</div>
+								<a href="{% url 'social:post_detail' s_post.id %}" class="kafe-btn kafe-btn-mint-small full-width">مشاهده
+								</a>
+							</div><!-- /.post-content -->
+						</div><!-- /.tr-post -->
+					</div><!-- /.tr-post -->
+				</div><!-- /col-sm-3 -->
+                    {% empty %}
+                    <div class="text-center">
+                        هیچ پست مشابهی وجود ندارد
+                    </div>
 
-<h2>Similar Post</h2>
-{% for post in similar_post %}
-    <p>
-        <a href="{{ post.get_absolute_url }}">{{ post.description| truncatewords:10 }}</a>
-    </p>
-{% empty %}
-    there are no similar post
-{% endfor %}
+                {% endfor %}
 
-<div id="comment-list">
-    <h2> Comments </h2>
-    {% if post.comments.all %}
-        {% for comment in post.comments.all %}
-            <p>At {{ comment.created }} {{comment.user}} commented:</p>
-            <p>{{comment.body}}</p>
-        {% endfor %}
-    {% endif %}
-</div>
-
-<div id="comment-div">
-    <form action="{% url 'social:post_comment' %}" id="comment-form">
-        <input type="hidden" id="post-id" value="{{post.id}}">
-        <textarea id="comment-body" maxlength="255" rows="4" cols="50"></textarea>
-        <br>
-        <button type="submit" id="submit-comment">Comment</button>
-    </form>
-    <hr>
-</div>
-
+			</div>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
-
-    $(document).ready(function (){
-        $('.like-button').click(function (){
-            var post_id = $(this).closest('.post').data('post-id');
-            var button = $(this);
+    $(document).ready(function() {
+        $('#like-button').click(function() {
+            var  button = $(this);
 
             $.ajax({
-                type:'POST',
-                url:'{% url 'social:like_post' %}',
-                data:{'post_id':post_id, 'csrfmiddlewaretoken':'{{ csrf_token }}'},
-                success: function (data){
+                type: 'POST',
+                url: '{% url 'social:like_post' %}',
+                data: {'post_id': {{post.id}}, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                success: function(data) {
                     if (data.liked){
-                        button.text('Unlike');
-                    } else{
+                        button.text('UnLike');
+                        button.removeClass('fa-heartbeat');
+                        button.addClass('fa-heart')
+                    } else {
                         button.text('Like');
+                        button.removeClass('fa-heart');
+                        button.addClass('fa-heartbeat')
                     }
-                    $('.likes-count').text(data.likes_count);
-
+                    $('#likes-count').text(data.likes_count);
                 },
             });
-
         });
 
-    });
-    $('.save-button').click(function (){
+        $("#save-post").click(function () {
             var button = $(this);
-
             $.ajax({
-                type:'POST',
-                url:'{% url 'social:save_post' %}',
-                data:{'post_id':{{ post.id }}, 'csrfmiddlewaretoken':'{{ csrf_token }}'},
-                success: function (data){
-                    if (data.saved){
-                        button.text('Unsaved');
-                    } else{
-                        button.text('saved');
+                type: "POST",
+                url: "/save-post/",
+                data: { 'csrfmiddlewaretoken': '{{ csrf_token }}', 'post_id': {{post.id}} },
+                success: function (data) {
+                    if (data.saved) {
+                        button.text("حذف از ذخیره");
+                    } else {
+                        button.text("ذخیره پست");
                     }
-
                 },
-                error: function (error){
-                    console.log("خطا در ارسال درخواستAJAX" + error);
+                error: function (error) {
+                    console.log("خطا در ارسال درخواست Ajax: " + error);
                 }
             });
-
         });
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
 
-    $('#submit-comment').click( function (e) {
-        e.preventDefault();
-        var url = $('#comment-form').attr("action");
-        var post_id = $('#post-id').attr("value");
-        var body = $('#comment-body').val();
-        const csrftoken = getCookie('csrftoken');
-
-        $.ajax({
-            method: "POST",
-            url: url,
-            headers: {'X-CsrfToken': csrftoken},
-            data: JSON.stringify({ post_id: post_id, body: body }),
-            success: function(comment) {
-                $('#comment-div').prop("hidden", true);
-                $('#comment-body').val('');
-                $('#comment-list').append(
-                    `<p>At ${comment.created} ${comment.user} commented:</p>
-                    <p>${comment.body}</p>`
-                );
-            }
-        });
     });
-
-
 </script>
 
-<div>
-    {% with comments.count as cm_count %}
-        {{ cm_count }} comment{{ cm_count | pluralize }}
-    {% endwith %}
-</div>
-<div>
-    {% for cm in comments %}
+	<script src="{% static 'js/jquery.min.js' %}"></script>
+	<script src="{% static 'js/bootstrap.min.js' %}"></script>
+	<script src="{% static 'js/base.js' %}"></script>
+	<script src="{% static 'plugins/slimscroll/jquery.slimscroll.js' %}"></script>
+	<script>
+	$('#Slim,#Slim2').slimScroll({
+	        height:"auto",
+			position: 'right',
+			railVisible: true,
+			alwaysVisible: true,
+			size:"8px",
+		});
+	</script>
 
-        {{ cm.body }}
-        {{ cm.name }}
-        <hr>
-    {% empty %}
-            کامنتی وجود ندار
-    {% endfor %}
-</div>
-
-<form method="post" action="{% url 'social:post_comment' post.id%}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="افزودن کامنت">
-</form>
+{% endblock %}

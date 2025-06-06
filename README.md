@@ -6,3 +6,11 @@
 
 <p>The name of the site is Sabz Social, where you can share photos and text.</p>
 <p>The languages ​​used on this site are Python and JavaScript.</p>
+
+<h3>Activity</h3>
+
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/shahmoradi-web/Blog)
+
+<h3>Programming Language Count</h3>
+
+![GitHub language count](https://img.shields.io/github/languages/count/shahmoradi-web/Blog)

@@ -34,8 +34,7 @@ This project was built as a learning exercise to strengthen my Django skills and
 - **Django**  
 - **PostgreSQL** (basic usage)  
 - **HTML / CSS**  
-- **Docker** (basic)  
-- **Deployment:** Railway (Free Tier)
+
 
 ---
 

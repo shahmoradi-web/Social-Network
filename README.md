@@ -7,10 +7,35 @@
 <p>The name of the site is Sabz Social, where you can share photos and text.</p>
 <p>The languages ​​used on this site are Python and JavaScript.</p>
 
-<h3>Activity</h3>
+## 🧠 What is this?
 
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/shahmoradi-web/Blog)
+A social network where users can:
+- Create an account and login/logout
+- Create, like, and comment on posts
+- Edit their profile and manage posts
 
-<h3>Programming Language Count</h3>
+This project was built as a learning exercise to strengthen my Django skills and understand backend workflows.
 
-![GitHub language count](https://img.shields.io/github/languages/count/shahmoradi-web/Blog)
+---
+
+## 🛠️ Features
+
+- 🔹 User registration and authentication
+- 🔹 CRUD operations for posts
+- 🔹 Like and comment on posts
+- 🔹 User profiles
+- 🔹 Simple and clean UI
+
+---
+
+## 🔧 Technologies Used
+
+- **Python**  
+- **Django**  
+- **PostgreSQL** (basic usage)  
+- **HTML / CSS**  
+- **Docker** (basic)  
+- **Deployment:** Railway (Free Tier)
+
+---
+
